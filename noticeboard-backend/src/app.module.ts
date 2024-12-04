@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { VideoController } from './controllers/video.controller';
-import { VideoService } from './services/video.service';
-import { NoticeboardGateway } from './gateways/noticeboard.gateway';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AuthModule } from './auth/auth.module';
+import { VideoModule } from './video/video.module';
+import { WebsocketModule } from './shared/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -11,8 +11,9 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    AuthModule,
+    VideoModule,
+    WebsocketModule,
   ],
-  controllers: [VideoController],
-  providers: [VideoService, NoticeboardGateway],
 })
 export class AppModule {}
