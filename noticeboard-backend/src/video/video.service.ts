@@ -24,6 +24,27 @@ export class VideoService {
     `);
   }
 
+  async getVideos(): Promise<Video[]> {
+    return new Promise((resolve, reject) => {
+      this.db.all(
+        'SELECT * FROM videos ORDER BY order_num ASC',
+        (err, rows: any[]) => {
+          if (err) reject(err);
+          resolve(
+            rows.map((row) => ({
+              id: row.id,
+              filename: row.filename,
+              path: row.path,
+              order: row.order_num,
+              active: row.active === 1,
+              createdAt: new Date(row.created_at),
+            })),
+          );
+        },
+      );
+    });
+  }
+
   async getActiveVideos(): Promise<Video[]> {
     return new Promise((resolve, reject) => {
       this.db.all(
