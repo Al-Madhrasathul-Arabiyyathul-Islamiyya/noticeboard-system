@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { CountdownModule } from './countdown/countdown.module';
 import { WebsocketModule } from './shared/websocket/websocket.module';
 import { VideoModule } from './video/video.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VideoModule } from './video/video.module';
     }),
     AuthModule,
     CountdownModule,
+    ScheduleModule,
     WebsocketModule,
     VideoModule,
   ],
