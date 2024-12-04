@@ -1,29 +1,34 @@
 <script setup lang="ts">
-const scheduleTypes = ['Academic', 'Administration']
-const scheduleItems = [
-  { time: '09:00', description: 'Morning Assembly' },
-  { time: '10:30', description: 'Break' },
-  { time: '12:00', description: 'Lunch' },
-]
+import { useSchedule } from '@/composables/useSchedule'
+import { computed } from 'vue'
+
+const { schedules, loading } = useSchedule()
+
+const groupedSchedules = computed(() => {
+  const groups = new Map<string, Schedule[]>()
+  schedules.value.forEach((schedule) => {
+    if (!groups.has(schedule.type)) {
+      groups.set(schedule.type, [])
+    }
+    groups.get(schedule.type)?.push(schedule)
+  })
+  return groups
+})
 </script>
 
 <template>
-  <div>
-    <h2 class="text-5xl font-bold mb-8">Daily Schedule</h2>
-    <div class="space-y-6">
-      <div v-for="(type, index) in scheduleTypes" :key="index">
-        <h3 class="text-2xl font-semibold mb-4">{{ type }}</h3>
+  <div v-if="groupedSchedules.size > 0">
+    <h2 class="text-5xl font-bold mb-8">Schedule</h2>
+    <div class="space-y-12">
+      <section v-for="[type, items] in groupedSchedules" :key="type">
+        <h3 class="text-3xl font-semibold mb-4 capitalize">{{ type }}</h3>
         <div class="space-y-4">
-          <div
-            v-for="(item, idx) in scheduleItems"
-            :key="idx"
-            class="flex items-center space-x-4 text-xl"
-          >
-            <span class="font-medium w-32">{{ item.time }}</span>
-            <span>{{ item.description }}</span>
+          <div v-for="item in items" :key="item.id" class="flex text-2xl">
+            <span class="w-32">{{ item.time }}</span>
+            <span>{{ item.item }}</span>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>

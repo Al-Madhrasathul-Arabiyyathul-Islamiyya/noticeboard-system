@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import { useVideos } from '@/composables/useVideos'
+const { videos, loading } = useVideos()
+</script>
+
 <template>
   <div class="flex items-center justify-center h-full">
     <div class="bg-white rounded-3xl aspect-video w-full">

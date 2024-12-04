@@ -7,7 +7,7 @@ export default {
         school: {
           green: '#189543',
           surface: '#E8F5E9',
-          text: '#0F172A',
+          text: '#F8FAFC',
         },
         primary: {
           green: '#189543',
@@ -51,6 +51,7 @@ export default {
           fontVariationSettings: '"opsz" 32',
         },
       ],
+      mono: ['Roboto Mono, monospace'],
     },
   },
   plugins: [],
