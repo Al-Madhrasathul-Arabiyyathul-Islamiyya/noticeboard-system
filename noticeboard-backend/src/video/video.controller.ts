@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -18,6 +20,7 @@ import {
   ApiBearerAuth,
   ApiResponse,
 } from '@nestjs/swagger';
+import { Response as ExpressResponse } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
@@ -26,6 +29,8 @@ import { VideoService } from '../video/video.service';
 import { NoticeboardGateway } from '../shared/websocket/noticeboard.gateway';
 import { VideoDto } from './dto/video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
+import { createReadStream, statSync } from 'fs';
+import { join } from 'path';
 
 @ApiTags('videos')
 @ApiBearerAuth()
@@ -120,6 +125,44 @@ export class VideoController {
     await this.videoService.deleteVideo(id);
     await this.emitVideoUpdate();
     return { success: true };
+  }
+
+  @Get('stream/:filename')
+  @ApiOperation({ summary: 'Stream video file' })
+  async streamVideo(
+    @Param('filename') filename: string,
+    @Headers() headers,
+    @Res() res: ExpressResponse,
+  ) {
+    const videoPath = join(process.cwd(), 'uploads', filename);
+    const { size } = statSync(videoPath);
+    const range = headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+
+      if (start >= size || start >= end || end > size - 1) {
+        res.status(416).send('Requested range not satisfiable');
+        return;
+      }
+
+      res
+        .status(206)
+        .header('Content-Range', `bytes ${start}-${end}/${size}`)
+        .header('Accept-Ranges', 'bytes')
+        .header('Content-Length', String(end - start + 1))
+        .header('Content-Type', 'video/mp4');
+
+      createReadStream(videoPath, { start, end }).pipe(res);
+    } else {
+      res
+        .status(200)
+        .header('Content-Length', String(size))
+        .header('Content-Type', 'video/mp4');
+      createReadStream(videoPath).pipe(res);
+    }
   }
 
   private async emitVideoUpdate() {
