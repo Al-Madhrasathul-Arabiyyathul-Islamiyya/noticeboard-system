@@ -7,11 +7,14 @@ import {
   Body,
   Param,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CountdownService } from './countdown.service';
 import { NoticeboardGateway } from '../shared/websocket/noticeboard.gateway';
+import { CreateCountdownDto } from './dto/create-countdown.dto';
+import { UpdateCountdownDto } from './dto/update-countdown.dto';
 
 @ApiTags('countdown')
 @ApiBearerAuth()
@@ -24,8 +27,10 @@ export class CountdownController {
 
   @Get('active')
   @ApiOperation({ summary: 'Get active countdown' })
-  getActiveCountdown() {
-    return this.countdownService.getActiveCountdown();
+  async getActiveCountdown() {
+    const countdown = await this.countdownService.getActiveCountdown();
+    if (!countdown) throw new NotFoundException('No active countdown found');
+    return countdown;
   }
 
   @Get()
@@ -38,7 +43,7 @@ export class CountdownController {
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create new countdown' })
-  async createCountdown(@Body() data: { name: string; targetDate: string }) {
+  async createCountdown(@Body() data: CreateCountdownDto) {
     const countdown = await this.countdownService.createCountdown(
       data.name,
       new Date(data.targetDate),
@@ -53,7 +58,7 @@ export class CountdownController {
   @ApiOperation({ summary: 'Update countdown' })
   async updateCountdown(
     @Param('id') id: number,
-    @Body() data: { name?: string; targetDate?: string; active?: boolean },
+    @Body() data: UpdateCountdownDto,
   ) {
     const countdown = await this.countdownService.updateCountdown(id, {
       ...data,

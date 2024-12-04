@@ -28,7 +28,7 @@ export class CountdownService {
         'SELECT * FROM countdown WHERE active = 1',
         (err, row: any) => {
           if (err) reject(err);
-          if (!row) resolve(null);
+          if (!row) return resolve(null); // Early return if no row found
           resolve({
             id: row.id,
             name: row.name,
