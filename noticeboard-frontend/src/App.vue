@@ -1,11 +1,33 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TimeDisplay from './components/TimeDisplay.vue'
+import ScheduleSection from './components/ScheduleSection.vue'
+import VideoSection from './components/VideoSection.vue'
+import CountdownSection from './components/CountdownSection.vue'
+</script>
 
 <template>
-  <header>Header</header>
+  <div class="min-h-screen bg-school-green text-school-text">
+    <div class="flex flex-col h-screen p-8">
+      <!-- Header -->
+      <div class="flex justify-between items-start mb-8">
+        <img src="@/assets/logo.png" alt="Logo" class="h-24" />
+        <TimeDisplay />
+      </div>
 
-  <main>
-    <h1 class="text-3xl font-bold">Hello world!</h1>
-  </main>
+      <!-- Main Content -->
+      <div class="grid grid-cols-12 gap-8 flex-grow">
+        <div class="col-span-4 bg-white/10 rounded-3xl p-8">
+          <ScheduleSection />
+        </div>
+        <div class="col-span-8">
+          <VideoSection />
+        </div>
+      </div>
+
+      <!-- Countdown -->
+      <div class="mt-8">
+        <CountdownSection class="bg-white/5 text-3xl font-mono" />
+      </div>
+    </div>
+  </div>
 </template>
-
-<style scoped></style>

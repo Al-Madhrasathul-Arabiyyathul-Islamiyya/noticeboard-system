@@ -4,6 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        school: {
+          green: '#189543',
+          surface: '#E8F5E9',
+          text: '#0F172A',
+        },
         primary: {
           green: '#189543',
           red: '#DA231C',
