@@ -1,6 +1,21 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  UseGuards,
+  Get,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiBody, ApiProperty } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiProperty,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 class LoginDto {
   @ApiProperty()
@@ -10,6 +25,7 @@ class LoginDto {
 }
 
 @ApiTags('auth')
+@ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -28,5 +44,15 @@ export class AuthController {
     }
 
     return this.authService.login(user);
+  }
+
+  @Get('verify')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Verify JWT token' })
+  async verifyToken(@Request() req) {
+    return {
+      valid: true,
+      user: req.user, // Return the user data from JWT payload
+    };
   }
 }

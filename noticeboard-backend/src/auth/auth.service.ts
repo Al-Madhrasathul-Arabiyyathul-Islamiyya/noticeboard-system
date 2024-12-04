@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as sqlite3 from 'sqlite3';
@@ -13,7 +14,10 @@ interface DBUser {
 export class AuthService {
   private db: sqlite3.Database;
 
-  constructor(private jwtService: JwtService) {
+  constructor(
+    private jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {
     this.db = new sqlite3.Database('noticeboard.db');
     this.initTable();
     this.createDefaultUser();
@@ -30,10 +34,13 @@ export class AuthService {
   }
 
   private async createDefaultUser() {
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const username = this.configService.get('ADMIN_USERNAME');
+    const password = this.configService.get('ADMIN_PASSWORD');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     this.db.run(
       'INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)',
-      ['admin', hashedPassword],
+      [username, hashedPassword],
     );
   }
 
