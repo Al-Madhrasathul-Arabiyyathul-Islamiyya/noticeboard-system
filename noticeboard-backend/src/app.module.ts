@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
-import { VideoModule } from './video/video.module';
+import { CountdownModule } from './countdown/countdown.module';
 import { WebsocketModule } from './shared/websocket/websocket.module';
+import { VideoModule } from './video/video.module';
 
 @Module({
   imports: [
@@ -12,8 +13,9 @@ import { WebsocketModule } from './shared/websocket/websocket.module';
       serveRoot: '/uploads',
     }),
     AuthModule,
-    VideoModule,
+    CountdownModule,
     WebsocketModule,
+    VideoModule,
   ],
 })
 export class AppModule {}
