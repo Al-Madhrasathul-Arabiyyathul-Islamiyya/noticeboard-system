@@ -12,22 +12,22 @@ const routes = [
     component: DefaultLayout,
     children: [
       {
-        path: '/',
+        path: '',
         name: 'home',
         component: HomeView,
       },
       {
-        path: '/schedules',
+        path: 'schedules',
         name: 'schedules',
         component: SchedulesView,
       },
       {
-        path: '/videos',
+        path: 'videos',
         name: 'videos',
         component: VideosView,
       },
       {
-        path: '/countdowns',
+        path: 'countdowns',
         name: 'countdowns',
         component: CountdownsView,
       },

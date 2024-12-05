@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import TheSidebar from '@/components/TheSidebar.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+
+const link = { name: 'Home', path: '/' }
 </script>
 
 <template>
@@ -11,7 +13,9 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex justify-between h-20">
           <div class="flex items-center gap-4">
-            <img src="@/assets/logo.png" alt="Logo" class="h-12" />
+            <RouterLink :to="link.path">
+              <img src="@/assets/logo.png" alt="Logo" class="h-12" />
+            </RouterLink>
             <h1 class="text-2xl font-medium">Noticeboard Admin</h1>
           </div>
           <ThemeToggle />
@@ -22,7 +26,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
     <div class="flex h-[calc(100vh-5rem)]">
       <TheSidebar />
       <main class="flex-1 p-8">
-        <slot />
+        <router-view></router-view>
       </main>
     </div>
   </div>
