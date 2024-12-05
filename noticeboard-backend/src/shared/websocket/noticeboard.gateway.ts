@@ -1,5 +1,9 @@
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
@@ -7,27 +11,45 @@ import { Server } from 'socket.io';
   },
 })
 export class NoticeboardGateway {
+  private clients: Map<string, ClientStatus> = new Map();
+
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: any) {
-    console.log('Client connected: ', client);
+  handleConnection(client: Socket) {
+    const clientId = client.id;
+    const status: ClientStatus = {
+      id: clientId,
+      lastPing: new Date(),
+      ipAddress: client.handshake.address,
+      connected: true,
+    };
+
+    this.clients.set(clientId, status);
+    this.broadcastStatus();
   }
 
-  handleDisconnect(client: any) {
-    console.log('Client disconnected: ', client);
+  handleDisconnect(client: Socket) {
+    const status = this.clients.get(client.id);
+    if (status) {
+      status.connected = false;
+      status.lastPing = new Date();
+      this.clients.set(client.id, status);
+      this.broadcastStatus();
+    }
   }
 
-  // Emit updates to connected clients
-  emitVideoUpdate(videos: any[]) {
-    this.server.emit('videoUpdate', videos);
+  @SubscribeMessage('videoUpdate')
+  handleVideoUpdate(client: Socket, video: any) {
+    const status = this.clients.get(client.id);
+    if (status) {
+      status.lastVideoPlayed = video.filename;
+      this.clients.set(client.id, status);
+      this.broadcastStatus();
+    }
   }
 
-  emitScheduleUpdate(schedule: any[]) {
-    this.server.emit('scheduleUpdate', schedule);
-  }
-
-  emitCountdownUpdate(countdown: any) {
-    this.server.emit('countdownUpdate', countdown);
+  private broadcastStatus() {
+    this.server.emit('statusUpdate', Array.from(this.clients.values()));
   }
 }
