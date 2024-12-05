@@ -18,7 +18,7 @@ const groupedSchedules = computed(() => {
 
 <template>
   <div v-if="groupedSchedules.size > 0">
-    <h2 class="text-5xl font-bold mb-8">Schedule</h2>
+    <h2 class="text-5xl font-bold mb-8">Daily Schedule</h2>
     <div class="space-y-12">
       <section v-for="[type, items] in groupedSchedules" :key="type">
         <h3 class="text-3xl font-semibold mb-4 capitalize">{{ type }}</h3>

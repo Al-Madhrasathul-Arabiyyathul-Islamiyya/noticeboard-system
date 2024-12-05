@@ -6,7 +6,7 @@ import CountdownSection from './components/CountdownSection.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-school-green text-school-text">
+  <div class="min-h-screen bg-school-green text-school-text main-container">
     <div class="flex flex-col h-screen p-8">
       <!-- Header -->
       <div class="flex justify-between items-start mb-8">
@@ -31,3 +31,9 @@ import CountdownSection from './components/CountdownSection.vue'
     </div>
   </div>
 </template>
+
+<style lang="css" scoped>
+.main-container {
+  background: center / cover no-repeat url('@/assets/background.png');
+}
+</style>

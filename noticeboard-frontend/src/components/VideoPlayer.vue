@@ -5,92 +5,86 @@ import { useVideos } from '@/composables/useVideos'
 const primaryVideo = ref<HTMLVideoElement | null>(null)
 const secondaryVideo = ref<HTMLVideoElement | null>(null)
 const currentIndex = ref(0)
-const error = ref<string | null>(null)
 const isPrimaryActive = ref(true)
-const isPreloaded = ref(false)
+const isPreTransitionPlaying = ref(false)
 
 const { videos, loading } = useVideos()
 
 const currentVideo = computed(() => videos.value[currentIndex.value])
-const nextVideo = computed(() => {
-  const nextIndex = (currentIndex.value + 1) % videos.value.length
-  return videos.value[nextIndex]
-})
+const nextIndex = computed(() => (currentIndex.value + 1) % videos.value.length)
+const nextVideo = computed(() => videos.value[nextIndex.value])
 
-const primaryVideoUrl = computed(() =>
-  currentVideo.value ? `/api/videos/stream/${currentVideo.value.path}` : '',
-)
-const secondaryVideoUrl = computed(() =>
-  nextVideo.value ? `/api/videos/stream/${nextVideo.value.path}` : '',
-)
-
-const resetPreloadState = () => {
-  isPreloaded.value = false
-}
-
-const preloadNextVideo = async () => {
-  if (secondaryVideo.value && nextVideo.value && !isPreloaded.value) {
-    secondaryVideo.value.src = `/api/videos/stream/${nextVideo.value.path}`
-    secondaryVideo.value.load()
-    isPreloaded.value = true
-    await new Promise((resolve) => {
-      secondaryVideo.value?.addEventListener('canplaythrough', resolve, { once: true })
-    })
+const updateVideoSource = async (videoElement: HTMLVideoElement, videoPath: string) => {
+  if (videoElement) {
+    const sourceElement = videoElement.querySelector('source')
+    if (sourceElement && sourceElement.src !== `/api/videos/stream/${videoPath}`) {
+      sourceElement.src = `/api/videos/stream/${videoPath}`
+      videoElement.load()
+      // Wait for loadeddata event
+      await new Promise((resolve) => {
+        videoElement.addEventListener('loadeddata', resolve, { once: true })
+      })
+    }
   }
 }
 
-const handleTimeUpdate = async () => {
-  if (primaryVideo.value && !isPreloaded.value) {
-    const timeLeft = primaryVideo.value.duration - primaryVideo.value.currentTime
-    if (timeLeft < 5) {
-      await preloadNextVideo()
-    }
+const playVideo = async (videoElement: HTMLVideoElement) => {
+  if (videoElement?.paused) {
+    await updateVideoSource(videoElement, currentVideo.value.path)
+    await videoElement.play()
   }
 }
 
 const handleVideoEnd = async () => {
-  if (videos.value.length <= 1) {
-    if (primaryVideo.value) {
-      primaryVideo.value.currentTime = 0
-      await primaryVideo.value.play()
-    }
-    return
+  console.log('[DEBUG] Video ended. Transitioning to the next video.')
+
+  const activeVideo = isPrimaryActive.value ? primaryVideo.value : secondaryVideo.value
+  const inactiveVideo = isPrimaryActive.value ? secondaryVideo.value : primaryVideo.value
+
+  isPreTransitionPlaying.value = false
+  currentIndex.value = nextIndex.value // Update to the next video
+  isPrimaryActive.value = !isPrimaryActive.value // Switch active video
+
+  // Update and play the newly active video
+  if (inactiveVideo && currentVideo.value) {
+    console.log(`[DEBUG] Playing active video: ${currentVideo.value.path}`)
+    updateVideoSource(inactiveVideo, currentVideo.value.path)
+    await playVideo(inactiveVideo)
   }
 
-  try {
-    isPrimaryActive.value = !isPrimaryActive.value
-    const nextVideoElement = isPrimaryActive.value ? primaryVideo.value : secondaryVideo.value
-    if (nextVideoElement) {
-      await nextVideoElement.play()
-    }
-    currentIndex.value = (currentIndex.value + 1) % videos.value.length
-    resetPreloadState()
-  } catch (e) {
-    error.value = 'Failed to transition to next video'
+  // Preload the next video in the sequence
+  if (activeVideo && nextVideo.value) {
+    console.log(`[DEBUG] Preloading next video: ${nextVideo.value.path}`)
+    updateVideoSource(activeVideo, nextVideo.value.path)
   }
 }
 
-const playVideo = async () => {
-  if (!primaryVideo.value || !currentVideo.value) return
-  try {
-    error.value = null
-    primaryVideo.value.muted = true
+const handleTimeUpdate = () => {
+  const activeVideo = isPrimaryActive.value ? primaryVideo.value : secondaryVideo.value
+  const inactiveVideo = isPrimaryActive.value ? secondaryVideo.value : primaryVideo.value
 
-    const sourceElement = primaryVideo.value.querySelector('source')
-    if (sourceElement) {
-      sourceElement.src = primaryVideoUrl.value
-      primaryVideo.value.load() // Force reload with new source
+  if (activeVideo && inactiveVideo) {
+    const timeLeft = activeVideo.duration - activeVideo.currentTime
+    // Extend preload time to 3 seconds to ensure video is ready
+    if (timeLeft < 3 && !isPreTransitionPlaying.value) {
+      isPreTransitionPlaying.value = true
+      // Let the video load before playing
+      setTimeout(() => playVideo(inactiveVideo), 500)
     }
+  }
+}
 
-    await primaryVideo.value.play()
-  } catch (e) {
-    error.value = 'Failed to play video'
+const playInitialVideo = async () => {
+  if (primaryVideo.value && currentVideo.value) {
+    console.log(`[DEBUG] Initial video: ${currentVideo.value.path}`)
+    updateVideoSource(primaryVideo.value, currentVideo.value.path)
+    await playVideo(primaryVideo.value)
   }
 }
 
 onMounted(() => {
-  if (videos.value.length && primaryVideo.value) {
-    playVideo()
+  if (videos.value.length) {
+    playInitialVideo()
   }
 })
 
@@ -98,7 +92,8 @@ watch(
   videos,
   async (newVideos) => {
     if (newVideos.length && primaryVideo.value) {
-      await playVideo()
+      currentIndex.value = 0
+      await playInitialVideo()
     }
   },
   { immediate: true },
@@ -106,44 +101,30 @@ watch(
 </script>
 
 <template>
-  <div class="relative w-full h-full">
+  <div class="relative w-full h-full overflow-hidden rounded-3xl">
     <video
       ref="primaryVideo"
-      class="w-full h-full object-contain bg-black rounded-3xl transition-opacity duration-500"
-      :class="{ 'opacity-0': !isPrimaryActive }"
-      muted
-      playsinline
-      preload="auto"
+      lass="absolute inset-0 w-full h-full object-contain bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
+      :class="{ 'opacity-100': isPrimaryActive, 'opacity-0': !isPrimaryActive }"
       @timeupdate="handleTimeUpdate"
       @ended="handleVideoEnd"
-    >
-      <source :src="primaryVideoUrl" />
-    </video>
-
-    <video
-      ref="secondaryVideo"
-      class="w-full h-full object-contain bg-black rounded-3xl absolute top-0 left-0 transition-opacity duration-500"
-      :class="{ 'opacity-0': isPrimaryActive }"
       muted
       playsinline
       preload="auto"
-      @ended="handleVideoEnd"
     >
-      <source :src="secondaryVideoUrl" />
+      <source />
     </video>
-
-    <div
-      v-if="loading"
-      class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
+    <video
+      ref="secondaryVideo"
+      class="absolute inset-0 w-full h-full object-contain bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
+      :class="{ 'opacity-100': !isPrimaryActive, 'opacity-0': isPrimaryActive }"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleVideoEnd"
+      muted
+      playsinline
+      preload="auto"
     >
-      <div class="text-white text-2xl">Loading...</div>
-    </div>
-
-    <div
-      v-if="error"
-      class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
-    >
-      <div class="text-red-500 text-2xl">{{ error }}</div>
-    </div>
+      <source />
+    </video>
   </div>
 </template>
