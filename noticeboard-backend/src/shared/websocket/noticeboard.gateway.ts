@@ -4,6 +4,17 @@ import {
   SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import type { Video } from '../../video/entities/video.entity';
+import type { Schedule } from '../../schedule/entities/schedule.entity';
+import type { Countdown } from '../../countdown/entities/countdown.entity';
+
+interface ClientStatus {
+  id: string;
+  lastPing: Date;
+  ipAddress?: string;
+  connected: boolean;
+  lastVideoPlayed?: string;
+}
 
 @WebSocketGateway({
   cors: {
@@ -39,6 +50,20 @@ export class NoticeboardGateway {
     }
   }
 
+  // Original emit methods
+  emitVideoUpdate(videos: Video[]) {
+    this.server.emit('videoUpdate', videos);
+  }
+
+  emitScheduleUpdate(schedule: Schedule[]) {
+    this.server.emit('scheduleUpdate', schedule);
+  }
+
+  emitCountdownUpdate(countdown: Countdown | null) {
+    this.server.emit('countdownUpdate', countdown);
+  }
+
+  // Status related methods
   @SubscribeMessage('videoUpdate')
   handleVideoUpdate(client: Socket, video: any) {
     const status = this.clients.get(client.id);
