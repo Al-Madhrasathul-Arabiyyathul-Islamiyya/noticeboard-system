@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { CountdownModule } from './countdown/countdown.module';
 import { WebsocketModule } from './shared/websocket/websocket.module';
 import { VideoModule } from './video/video.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -16,4 +17,8 @@ import { ScheduleModule } from './schedule/schedule.module';
     VideoModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
