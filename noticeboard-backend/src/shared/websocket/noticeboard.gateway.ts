@@ -8,21 +8,14 @@ import type { Video } from '../../video/entities/video.entity';
 import type { Schedule } from '../../schedule/entities/schedule.entity';
 import type { Countdown } from '../../countdown/entities/countdown.entity';
 
-interface ClientStatus {
-  id: string;
-  lastPing: Date;
-  ipAddress?: string;
-  connected: boolean;
-  lastVideoPlayed?: string;
-}
-
 @WebSocketGateway({
   cors: {
-    origin: '*', // Configure appropriately for production
+    origin: '*',
   },
 })
 export class NoticeboardGateway {
   private clients: Map<string, ClientStatus> = new Map();
+  private pingIntervals: Map<string, NodeJS.Timeout> = new Map();
 
   @WebSocketServer()
   server: Server;
@@ -34,13 +27,23 @@ export class NoticeboardGateway {
       lastPing: new Date(),
       ipAddress: client.handshake.address,
       connected: true,
+      network: {
+        clientId,
+        latency: 0,
+        lastPing: new Date(),
+        lastPong: new Date(),
+        connectionQuality: 'good',
+        lastSync: new Date(),
+      },
     };
 
     this.clients.set(clientId, status);
+    this.startPingInterval(client);
     this.broadcastStatus();
   }
 
   handleDisconnect(client: Socket) {
+    this.clearPingInterval(client.id);
     const status = this.clients.get(client.id);
     if (status) {
       status.connected = false;
@@ -50,7 +53,63 @@ export class NoticeboardGateway {
     }
   }
 
-  // Original emit methods
+  private startPingInterval(client: Socket) {
+    const interval = setInterval(() => {
+      const startTime = Date.now();
+      client.emit('ping', { timestamp: startTime });
+
+      client.once('pong', () => {
+        const latency = Date.now() - startTime;
+        this.updateNetworkStatus(client.id, latency);
+      });
+
+      setTimeout(() => {
+        const status = this.clients.get(client.id);
+        if (status && Date.now() - status.network.lastPong.getTime() > 5000) {
+          status.network.connectionQuality = 'poor';
+          this.clients.set(client.id, status);
+          this.broadcastStatus();
+        }
+      }, 5000);
+    }, 30000);
+
+    this.pingIntervals.set(client.id, interval);
+  }
+
+  private clearPingInterval(clientId: string) {
+    const interval = this.pingIntervals.get(clientId);
+    if (interval) {
+      clearInterval(interval);
+      this.pingIntervals.delete(clientId);
+    }
+  }
+
+  private updateNetworkStatus(clientId: string, latency: number) {
+    const status = this.clients.get(clientId);
+    if (status) {
+      status.network.latency = latency;
+      status.network.lastPong = new Date();
+      status.network.connectionQuality = this.getConnectionQuality(latency);
+      this.clients.set(clientId, status);
+      this.broadcastStatus();
+    }
+  }
+
+  private getConnectionQuality(latency: number): 'good' | 'fair' | 'poor' {
+    if (latency < 100) return 'good';
+    if (latency < 300) return 'fair';
+    return 'poor';
+  }
+
+  trackSync(clientId: string) {
+    const status = this.clients.get(clientId);
+    if (status) {
+      status.network.lastSync = new Date();
+      this.clients.set(clientId, status);
+      this.broadcastStatus();
+    }
+  }
+
   emitVideoUpdate(videos: Video[]) {
     this.server.emit('videoUpdate', videos);
   }
@@ -63,7 +122,6 @@ export class NoticeboardGateway {
     this.server.emit('countdownUpdate', countdown);
   }
 
-  // Status related methods
   @SubscribeMessage('videoUpdate')
   handleVideoUpdate(client: Socket, video: any) {
     const status = this.clients.get(client.id);

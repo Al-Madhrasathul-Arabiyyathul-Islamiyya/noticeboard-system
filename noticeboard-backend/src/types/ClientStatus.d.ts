@@ -4,4 +4,5 @@ interface ClientStatus {
   ipAddress?: string;
   connected: boolean;
   lastVideoPlayed?: string;
+  network: NetworkStatus;
 }
