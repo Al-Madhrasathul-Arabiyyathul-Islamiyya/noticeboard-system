@@ -17,8 +17,8 @@ const routes = [
         component: HomeView,
       },
       {
-        path: '/schedule',
-        name: 'schedule',
+        path: '/schedules',
+        name: 'schedules',
         component: SchedulesView,
       },
       {

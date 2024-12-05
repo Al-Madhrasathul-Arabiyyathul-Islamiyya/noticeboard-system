@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import TheSidebar from '@/components/TheSidebar.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
+</script>
+
 <template>
   <div
     class="min-h-screen bg-neutral-bg dark:bg-dark-neutral-bg text-neutral-text dark:text-dark-neutral-text"
@@ -15,7 +20,7 @@
     </nav>
 
     <div class="flex h-[calc(100vh-5rem)]">
-      <Sidebar />
+      <TheSidebar />
       <main class="flex-1 p-8">
         <slot />
       </main>
