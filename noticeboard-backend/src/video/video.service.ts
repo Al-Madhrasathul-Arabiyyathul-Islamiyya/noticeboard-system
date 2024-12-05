@@ -68,15 +68,21 @@ export class VideoService {
 
   async addVideo(filename: string, path: string): Promise<Video> {
     return new Promise((resolve, reject) => {
+      const savedFilename = path.split('\\').pop();
+      if (!savedFilename) {
+        reject(new Error('Invalid file path'));
+        return;
+      }
+
       this.db.run(
         'INSERT INTO videos (filename, path, order_num) VALUES (?, ?, (SELECT COALESCE(MAX(order_num), 0) + 1 FROM videos))',
-        [filename, path],
+        [filename, savedFilename],
         function (err) {
           if (err) reject(err);
           resolve({
             id: this.lastID,
             filename,
-            path,
+            path: `videos/stream/${encodeURIComponent(savedFilename)}`,
             order: this.lastID,
             active: true,
             createdAt: new Date(),

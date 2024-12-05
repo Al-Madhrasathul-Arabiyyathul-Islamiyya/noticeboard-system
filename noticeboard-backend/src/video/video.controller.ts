@@ -29,8 +29,9 @@ import { VideoService } from '../video/video.service';
 import { NoticeboardGateway } from '../shared/websocket/noticeboard.gateway';
 import { VideoDto } from './dto/video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
-import { createReadStream, statSync } from 'fs';
 import { join } from 'path';
+import * as fs from 'fs';
+import { createReadStream, statSync } from 'fs';
 
 @ApiTags('videos')
 @ApiBearerAuth()
@@ -134,34 +135,58 @@ export class VideoController {
     @Headers() headers,
     @Res() res: ExpressResponse,
   ) {
-    const videoPath = join(process.cwd(), 'uploads', filename);
-    const { size } = statSync(videoPath);
-    const range = headers.range;
+    try {
+      const videoPath = join(process.cwd(), 'uploads', filename);
 
-    if (range) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
-
-      if (start >= size || start >= end || end > size - 1) {
-        res.status(416).send('Requested range not satisfiable');
+      try {
+        await fs.promises.access(videoPath, fs.constants.F_OK);
+      } catch {
+        res.status(404).json({ message: 'Video not found' });
         return;
       }
 
-      res
-        .status(206)
-        .header('Content-Range', `bytes ${start}-${end}/${size}`)
-        .header('Accept-Ranges', 'bytes')
-        .header('Content-Length', String(end - start + 1))
-        .header('Content-Type', 'video/mp4');
+      const { size } = statSync(videoPath);
+      const range = headers.range;
 
-      createReadStream(videoPath, { start, end }).pipe(res);
-    } else {
-      res
-        .status(200)
-        .header('Content-Length', String(size))
-        .header('Content-Type', 'video/mp4');
-      createReadStream(videoPath).pipe(res);
+      if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : size - 1;
+
+        if (start >= size || start >= end || end > size - 1) {
+          res.status(416).send('Requested range not satisfiable');
+          return;
+        }
+
+        res
+          .status(206)
+          .header('Content-Range', `bytes ${start}-${end}/${size}`)
+          .header('Accept-Ranges', 'bytes')
+          .header('Content-Length', String(end - start + 1))
+          .header('Content-Type', 'video/mp4');
+
+        const stream = createReadStream(videoPath, { start, end });
+        stream.pipe(res);
+
+        stream.on('error', () => {
+          res.status(500).json({ message: 'Error streaming video' });
+        });
+      } else {
+        res
+          .status(200)
+          .header('Content-Length', String(size))
+          .header('Content-Type', 'video/mp4');
+
+        const stream = createReadStream(videoPath);
+        stream.pipe(res);
+
+        stream.on('error', () => {
+          res.status(500).json({ message: 'Error streaming video' });
+        });
+      }
+    } catch (error) {
+      console.error('Video streaming error:', error);
+      res.status(500).json({ message: 'Server error while streaming video' });
     }
   }
 
