@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '@/utils/api'
-import type { ScheduleItem } from '@/types/schedule-item'
+import type { ScheduleItem } from '@/types'
 
 export const useScheduleStore = defineStore('schedule', () => {
   const schedules = ref<ScheduleItem[]>([])
