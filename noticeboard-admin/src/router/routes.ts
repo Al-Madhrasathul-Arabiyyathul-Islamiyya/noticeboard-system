@@ -15,21 +15,33 @@ const routes = [
         path: '',
         name: 'home',
         component: HomeView,
+        meta: {
+          title: 'Dashboard - Noticeboard Admin',
+        },
       },
       {
         path: 'schedules',
         name: 'schedules',
         component: SchedulesView,
+        meta: {
+          title: 'Schedules - Noticeboard Admin',
+        },
       },
       {
         path: 'videos',
         name: 'videos',
         component: VideosView,
+        meta: {
+          title: 'Videos - Noticeboard Admin',
+        },
       },
       {
         path: 'countdowns',
         name: 'countdowns',
         component: CountdownsView,
+        meta: {
+          title: 'Countdowns - Noticeboard Admin',
+        },
       },
     ],
   },
@@ -41,6 +53,9 @@ const routes = [
         path: '',
         name: 'login',
         component: LoginView,
+        meta: {
+          title: 'Login - Noticeboard Admin',
+        },
       },
     ],
   },
