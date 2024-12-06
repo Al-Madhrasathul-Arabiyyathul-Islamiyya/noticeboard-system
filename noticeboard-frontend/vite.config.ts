@@ -22,6 +22,8 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
+      port: 3010,
+      strictPort: true,
     },
   }
 })
