@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -50,6 +51,21 @@ export class ScheduleController {
   async createSchedule(@Body() createScheduleDto: CreateScheduleDto) {
     const schedule =
       await this.scheduleService.createSchedule(createScheduleDto);
+    const todaySchedule = await this.scheduleService.getTodaySchedule();
+    this.noticeboardGateway.emitScheduleUpdate(todaySchedule);
+    return schedule;
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateSchedule(
+    @Param('id') id: number,
+    @Body() updateScheduleDto: CreateScheduleDto,
+  ) {
+    const schedule = await this.scheduleService.updateSchedule(
+      id,
+      updateScheduleDto,
+    );
     const todaySchedule = await this.scheduleService.getTodaySchedule();
     this.noticeboardGateway.emitScheduleUpdate(todaySchedule);
     return schedule;

@@ -42,6 +42,26 @@ export class ScheduleService {
     };
   }
 
+  private async getSchedule(id: number): Promise<Schedule> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM schedule WHERE id = ?',
+        [id],
+        (err, row: any) => {
+          if (err) reject(err);
+          if (!row) reject(new Error('Schedule not found'));
+          resolve({
+            id: row.id,
+            type: row.type,
+            date: new Date(row.date),
+            time: row.time,
+            item: row.item,
+          });
+        },
+      );
+    });
+  }
+
   async getTodaySchedule(): Promise<Schedule[]> {
     const today = new Date().toISOString().split('T')[0];
     return new Promise((resolve, reject) => {
@@ -92,6 +112,19 @@ export class ScheduleService {
               });
             },
           );
+        },
+      );
+    });
+  }
+
+  async updateSchedule(id: number, data: CreateScheduleDto): Promise<Schedule> {
+    return new Promise((resolve, reject) => {
+      this.db.run(
+        'UPDATE schedule SET type = ?, date = ?, time = ?, item = ? WHERE id = ?',
+        [data.type, data.date, data.time, data.item, id],
+        (err) => {
+          if (err) reject(err);
+          this.getSchedule(id).then(resolve).catch(reject);
         },
       );
     });
