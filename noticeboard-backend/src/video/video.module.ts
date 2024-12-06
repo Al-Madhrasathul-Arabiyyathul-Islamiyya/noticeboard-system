@@ -7,5 +7,6 @@ import { WebsocketModule } from '../shared/websocket/websocket.module';
   imports: [WebsocketModule],
   controllers: [VideoController],
   providers: [VideoService],
+  exports: [VideoService],
 })
 export class VideoModule {}

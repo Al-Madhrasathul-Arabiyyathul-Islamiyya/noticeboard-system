@@ -7,5 +7,6 @@ import { WebsocketModule } from '../shared/websocket/websocket.module';
   imports: [WebsocketModule],
   controllers: [ScheduleController],
   providers: [ScheduleService],
+  exports: [ScheduleService],
 })
 export class ScheduleModule {}

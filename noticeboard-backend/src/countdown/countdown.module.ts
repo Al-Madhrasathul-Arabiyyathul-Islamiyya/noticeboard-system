@@ -7,5 +7,6 @@ import { WebsocketModule } from '../shared/websocket/websocket.module';
   imports: [WebsocketModule],
   controllers: [CountdownController],
   providers: [CountdownService],
+  exports: [CountdownService],
 })
 export class CountdownModule {}
