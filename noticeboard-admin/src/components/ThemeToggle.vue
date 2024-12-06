@@ -1,19 +1,10 @@
 <script setup lang="ts">
-import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline'
-import { ref, onMounted } from 'vue'
+import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
+import { useThemePreference } from '@/composables/useThemePreference'
 
-const isDark = ref(false)
+const { isDark, setPreference } = useThemePreference()
 
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark')
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
-}
-
-onMounted(() => {
-  isDark.value = localStorage.getItem('theme') === 'dark'
-  if (isDark.value) document.documentElement.classList.add('dark')
-})
+const toggleTheme = () => setPreference(isDark.value ? 'light' : 'dark')
 </script>
 
 <template>
