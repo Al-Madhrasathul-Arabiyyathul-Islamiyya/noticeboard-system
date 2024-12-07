@@ -4,3 +4,8 @@ export interface CountdownItem {
   targetDate: Date
   active: boolean
 }
+
+export interface CountdownForm {
+  name: string
+  targetDate: string
+}

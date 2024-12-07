@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { ref, watch } from 'vue'
-import type { ScheduleItem } from '@/types'
+import type { ScheduleForm, ScheduleItem } from '@/types'
+
+const form = ref<ScheduleForm>({
+  type: 'academic',
+  date: new Date().toISOString().split('T')[0],
+  time: '',
+  item: '',
+})
 
 const props = defineProps<{
   isOpen: boolean
@@ -14,22 +21,31 @@ const emit = defineEmits<{
   (e: 'submit', data: Omit<ScheduleItem, 'id'>): void
 }>()
 
-interface ScheduleForm {
-  type: 'academic' | 'administration'
-  date: string
-  time: string
-  item: string
+const resetForm = () => {
+  form.value = {
+    type: 'academic',
+    date: new Date().toISOString().split('T')[0],
+    time: '',
+    item: '',
+  }
 }
-const form = ref<ScheduleForm>({
-  type: 'academic',
-  date: new Date().toISOString().split('T')[0],
-  time: '',
-  item: '',
-})
+
+const close = () => {
+  emit('close')
+}
+
+const handleSubmit = () => {
+  emit('submit', {
+    ...form.value,
+    date: new Date(form.value.date),
+  })
+  resetForm()
+}
 
 watch(
   () => props.schedule,
   (schedule) => {
+    resetForm()
     if (schedule) {
       form.value = {
         type: schedule.type,
@@ -41,28 +57,6 @@ watch(
   },
   { immediate: true },
 )
-
-const resetForm = () => {
-  form.value = {
-    type: 'academic',
-    date: new Date().toISOString().split('T')[0],
-    time: '',
-    item: '',
-  }
-}
-
-const close = () => {
-  resetForm()
-  emit('close')
-}
-
-const handleSubmit = () => {
-  emit('submit', {
-    ...form.value,
-    date: new Date(form.value.date),
-  })
-  resetForm()
-}
 </script>
 
 <template>

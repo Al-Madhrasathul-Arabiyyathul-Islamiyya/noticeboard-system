@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
-import type { CountdownItem } from '@/types'
+import type { CountdownForm, CountdownItem } from '@/types'
+
+const form = ref<CountdownForm>({
+  name: '',
+  targetDate: new Date().toISOString().slice(0, 16),
+})
 
 const props = defineProps<{
   isOpen: boolean
@@ -14,20 +19,24 @@ const emit = defineEmits<{
   (e: 'submit', data: Omit<CountdownItem, 'id'>): void
 }>()
 
-interface CountdownForm {
-  name: string
-  targetDate: string
-}
-const form = ref<CountdownForm>({
-  name: '',
-  targetDate: new Date().toISOString().slice(0, 16),
-})
-
 const resetForm = () => {
   form.value = {
     name: '',
     targetDate: new Date().toISOString().slice(0, 16),
   }
+}
+
+const handleSubmit = () => {
+  emit('submit', {
+    name: form.value.name,
+    targetDate: new Date(form.value.targetDate),
+    active: false,
+  })
+  resetForm()
+}
+
+const close = () => {
+  emit('close')
 }
 
 watch(
@@ -43,19 +52,6 @@ watch(
   },
   { immediate: true },
 )
-
-const handleSubmit = () => {
-  emit('submit', {
-    name: form.value.name,
-    targetDate: new Date(form.value.targetDate),
-    active: false,
-  })
-  resetForm()
-}
-
-const close = () => {
-  emit('close')
-}
 </script>
 
 <template>
