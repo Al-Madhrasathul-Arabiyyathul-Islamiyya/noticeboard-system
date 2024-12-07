@@ -24,15 +24,18 @@ const videoStore = useVideoStore()
 
 const isUploading = computed(() => videoStore.uploadProgress > 0 && videoStore.uploadProgress < 100)
 
-// Handle submission with progress
 const handleSubmit = async () => {
+  // if (props.mode === 'upload' && form.value.video) {
+  //   try {
+  //     videoStore.uploadProgress = 0
+  //     emit('submit', { video: form.value.video })
+  //   } catch (error) {
+  //     console.error('Upload error', error)
+  //   }
+  // }
+
   if (props.mode === 'upload' && form.value.video) {
-    try {
-      videoStore.uploadProgress = 0
-      emit('submit', { video: form.value.video })
-    } catch (error) {
-      console.error('Upload error', error)
-    }
+    emit('submit', { video: form.value.video })
   } else if (props.mode === 'edit') {
     emit('submit', { active: form.value.active, order: form.value.order })
   }
