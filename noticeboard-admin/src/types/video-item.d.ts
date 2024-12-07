@@ -6,3 +6,23 @@ export interface VideoItem {
   active: boolean
   createdAt: Date
 }
+
+export interface VideoUploadForm extends Record<string, unknown> {
+  video: File
+}
+
+export interface VideoUpdateForm extends Record<string, unknown> {
+  active?: boolean
+  order?: number
+}
+
+export interface VideoState {
+  videos: VideoItem[]
+  loading: boolean
+  error: string | null
+  uploadProgress: number
+}
+
+export interface VideoFormData extends FormData {
+  append(name: 'video', value: File): void
+}
