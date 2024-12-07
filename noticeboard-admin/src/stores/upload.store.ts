@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { api } from '@/utils/api'
 import type { VideoUploadForm } from '@/types'
 import axios from 'axios'
+import { api } from '@/utils/api'
 
 interface UploadInstance {
   id: number
@@ -12,15 +12,14 @@ interface UploadInstance {
 
 export const useUploadStore = defineStore('upload', () => {
   const uploads = ref<UploadInstance[]>([])
-  const cancelTokens = new Map<number, AbortController>()
-
+  const controllers = new Map<number, AbortController>()
   let uploadIdCounter = 0
 
   const startUpload = async (form: VideoUploadForm, onProgress: (progress: number) => void) => {
     const controller = new AbortController()
     const id = uploadIdCounter++
 
-    cancelTokens.set(id, controller)
+    controllers.set(id, controller)
 
     const formData = new FormData()
     if (form.video) {
@@ -36,12 +35,14 @@ export const useUploadStore = defineStore('upload', () => {
     uploads.value.push(uploadInstance)
 
     try {
+      console.log('Sending request to server...')
       await api.post('/videos/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         signal: controller.signal,
         onUploadProgress: (event) => {
           if (event.total) {
             const progress = Math.round((event.loaded / event.total) * 100)
+            console.log(`Progress: ${progress}%`)
             const upload = uploads.value.find((u) => u.id === id)
             if (upload) upload.progress = progress
             onProgress(progress)
@@ -50,22 +51,23 @@ export const useUploadStore = defineStore('upload', () => {
       })
     } catch (error) {
       if (axios.isCancel(error)) {
-        console.log('Upload cancelled')
       } else {
-        throw error
+        console.error('Upload failed:', error)
       }
     } finally {
-      cancelTokens.delete(id)
+      controllers.delete(id)
       removeUpload(id)
     }
   }
 
   const cancelUpload = (id: number) => {
-    const controller = cancelTokens.get(id)
+    const controller = controllers.get(id)
     if (controller) {
       controller.abort()
-      cancelTokens.delete(id)
+      controllers.delete(id)
       removeUpload(id)
+    } else {
+      console.warn(`No controller found for upload ID: ${id}`)
     }
   }
 
