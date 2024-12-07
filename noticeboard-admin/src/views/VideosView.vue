@@ -5,8 +5,10 @@ import VideoDialog from '@/components/video/VideoDialog.vue'
 import AddButton from '@/components/AddButton.vue'
 import { useVideoStore } from '@/stores/video.store'
 import type { VideoItem, VideoUpdateForm, VideoUploadForm } from '@/types'
+import { useUploadStore } from '@/stores/upload.store'
 
 const videoStore = useVideoStore()
+const uploadStore = useUploadStore()
 const isDialogOpen = ref(false)
 const selectedVideo = ref<VideoItem>()
 
@@ -43,8 +45,8 @@ async function handleSubmit(data: VideoUploadForm | VideoUpdateForm) {
     videoStore.uploadProgress = 0
 
     try {
-      await videoStore.uploadVideo(data as VideoUploadForm, (progress) => {
-        videoStore.uploadProgress = progress
+      uploadStore.startUpload(data as VideoUploadForm, (progress) => {
+        console.log('Progress', progress)
       })
     } catch (error) {
       console.error('Failed to upload video:', error)

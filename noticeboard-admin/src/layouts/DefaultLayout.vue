@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TheSidebar from '@/components/TheSidebar.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import GlobalUploadProgress from '@/components/GlobalUploadProgress.vue'
 
 const link = { name: 'Home', path: '/' }
 </script>
@@ -26,6 +27,7 @@ const link = { name: 'Home', path: '/' }
     <div class="flex h-[calc(100vh-5rem)]">
       <TheSidebar />
       <main class="flex-1 p-8">
+        <GlobalUploadProgress />
         <router-view></router-view>
       </main>
     </div>
