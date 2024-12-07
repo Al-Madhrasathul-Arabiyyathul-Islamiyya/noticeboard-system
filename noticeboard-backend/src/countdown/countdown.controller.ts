@@ -69,6 +69,18 @@ export class CountdownController {
     return countdown;
   }
 
+  @Patch(':id/activate')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Set countdown as the active one' })
+  async activateCountdown(@Param('id') id: number) {
+    const countdown = await this.countdownService.updateCountdown(id, {
+      active: true,
+    });
+    const active = await this.countdownService.getActiveCountdown();
+    this.noticeboardGateway.emitCountdownUpdate(active);
+    return countdown;
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete countdown' })
