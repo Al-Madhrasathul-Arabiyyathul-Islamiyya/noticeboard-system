@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useScheduleStore } from '@/stores/schedule.store'
 import type { ScheduleItem } from '@/types'
+import AddButton from '@/components/AddButton.vue'
 import ScheduleTable from '@/components/schedules/ScheduleTable.vue'
 import ScheduleDialog from '@/components/schedules/ScheduleDialog.vue'
 
@@ -49,12 +50,7 @@ async function handleSubmit(data: Omit<ScheduleItem, 'id'>) {
   <div class="space-y-6">
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-semibold">Schedules</h1>
-      <button
-        @click="openDialog()"
-        class="px-4 py-2 bg-primary-green text-white rounded-lg hover:bg-primary-green/90"
-      >
-        Add Schedule
-      </button>
+      <AddButton title="Add Schedule" @click="openDialog()" />
     </div>
 
     <Suspense>

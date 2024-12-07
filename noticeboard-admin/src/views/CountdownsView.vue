@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import CountdownDialog from '@/components/countdowns/CountdownDialog.vue'
 import CountdownTable from '@/components/countdowns/CountdownTable.vue'
+import AddButton from '@/components/AddButton.vue'
 import { useCountdownStore } from '@/stores/countdown.store'
 import type { CountdownItem } from '@/types'
 
@@ -53,12 +54,7 @@ async function handleSubmit(data: Omit<CountdownItem, 'id' | 'active'>) {
   <div class="space-y-6">
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-semibold">Countdowns</h1>
-      <button
-        @click="openDialog()"
-        class="px-4 py-2 bg-primary-green text-white rounded-lg hover:bg-primary-green/90"
-      >
-        Add Countdown
-      </button>
+      <AddButton title="Add Countdown" @click="openDialog" />
     </div>
 
     <Suspense>
