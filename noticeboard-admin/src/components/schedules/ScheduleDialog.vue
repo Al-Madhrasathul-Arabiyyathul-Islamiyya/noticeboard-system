@@ -137,7 +137,7 @@ watch(
                   <button
                     type="button"
                     @click="close"
-                    class="px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-neutral-surface text-neutral-text dark:text-dark-neutral-text"
+                    class="px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-slate-200 dark:hover:bg-dark-neutral-surface text-neutral-text dark:text-dark-neutral-text"
                   >
                     Cancel
                   </button>

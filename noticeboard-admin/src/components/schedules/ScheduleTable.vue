@@ -18,7 +18,7 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="bg-white dark:bg-dark-neutral-surface rounded-lg shadow-lg">
+  <div class="rounded-lg shadow-lg">
     <table class="min-w-full">
       <thead class="bg-neutral-surface dark:bg-dark-neutral-surface">
         <tr class="border-b dark:border-gray-700">

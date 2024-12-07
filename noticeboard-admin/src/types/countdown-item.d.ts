@@ -8,4 +8,5 @@ export interface CountdownItem {
 export interface CountdownForm {
   name: string
   targetDate: string
+  active: boolean
 }

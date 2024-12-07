@@ -6,6 +6,7 @@ import type { CountdownForm, CountdownItem } from '@/types'
 const form = ref<CountdownForm>({
   name: '',
   targetDate: new Date().toISOString().slice(0, 16),
+  active: false,
 })
 
 const props = defineProps<{
@@ -23,6 +24,7 @@ const resetForm = () => {
   form.value = {
     name: '',
     targetDate: new Date().toISOString().slice(0, 16),
+    active: false,
   }
 }
 
@@ -30,9 +32,8 @@ const handleSubmit = () => {
   emit('submit', {
     name: form.value.name,
     targetDate: new Date(form.value.targetDate),
-    active: false,
+    active: form.value.active,
   })
-  resetForm()
 }
 
 const close = () => {
@@ -47,6 +48,7 @@ watch(
       form.value = {
         name: newVal.name,
         targetDate: new Date(newVal.targetDate).toISOString().slice(0, 16),
+        active: newVal.active,
       }
     }
   },
@@ -108,11 +110,20 @@ watch(
                   />
                 </div>
 
+                <div class="space-y-2">
+                  <label class="block text-neutral-text dark:text-dark-neutral-text">Active</label>
+                  <input
+                    v-model="form.active"
+                    type="checkbox"
+                    class="h-5 w-5 rounded border-gray-200 dark:border-gray-700 text-primary-green"
+                  />
+                </div>
+
                 <div class="flex justify-end space-x-2">
                   <button
                     type="button"
                     @click="close"
-                    class="px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-neutral-surface text-neutral-text dark:text-dark-neutral-text"
+                    class="px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-slate-200 dark:hover:bg-dark-neutral-surface text-neutral-text dark:text-dark-neutral-text"
                   >
                     Cancel
                   </button>
