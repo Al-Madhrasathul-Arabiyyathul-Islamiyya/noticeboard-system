@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import VideoTable from '@/components/video/VideoTable.vue'
+import VideoDialog from '@/components/video/VideoDialog.vue'
 import AddButton from '@/components/AddButton.vue'
 import { useVideoStore } from '@/stores/video.store'
-import type { VideoItem } from '@/types'
+import type { VideoItem, VideoUpdateForm, VideoUploadForm } from '@/types'
 
 const videoStore = useVideoStore()
 const isDialogOpen = ref(false)
@@ -28,14 +29,40 @@ async function deleteVideo(id: number) {
   await videoStore.deleteVideo(id)
 }
 
-// function closeDialog() {
-//   isDialogOpen.value = false
-// }
+function closeDialog() {
+  isDialogOpen.value = false
+}
 
-// function resetDialog() {
-//   selectedVideo.value = undefined
-// }
+function resetDialog() {
+  selectedVideo.value = undefined
+}
 
+async function handleSubmit(data: VideoUploadForm | VideoUpdateForm) {
+  if ('video' in data) {
+    isDialogOpen.value = true
+    videoStore.uploadProgress = 0
+
+    try {
+      await videoStore.uploadVideo(data as VideoUploadForm, (progress) => {
+        videoStore.uploadProgress = progress
+      })
+    } catch (error) {
+      console.error('Failed to upload video:', error)
+    } finally {
+      videoStore.fetchVideos()
+      isDialogOpen.value = false
+    }
+  } else {
+    try {
+      await videoStore.updateVideo(selectedVideo.value?.id || 0, data as VideoUpdateForm)
+    } catch (error) {
+      console.error('Failed to update video:', error)
+    } finally {
+      videoStore.fetchVideos()
+      isDialogOpen.value = false
+    }
+  }
+}
 onMounted(() => {
   videoStore.fetchVideos()
 })
@@ -63,5 +90,14 @@ onMounted(() => {
         </div>
       </template>
     </Suspense>
+
+    <VideoDialog
+      :is-open="isDialogOpen"
+      :mode="selectedVideo ? 'edit' : 'upload'"
+      :video="selectedVideo"
+      @close="closeDialog"
+      @after-close="resetDialog"
+      @submit="handleSubmit"
+    />
   </div>
 </template>

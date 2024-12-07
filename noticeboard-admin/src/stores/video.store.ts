@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '@/utils/api'
-import type { VideoItem, VideoUpdateForm } from '@/types'
+import type { VideoItem, VideoUpdateForm, VideoUploadForm } from '@/types'
 
 export const useVideoStore = defineStore('video', () => {
   const videos = ref<VideoItem[]>([])
@@ -21,25 +21,27 @@ export const useVideoStore = defineStore('video', () => {
     }
   }
 
-  async function uploadVideo(file: File) {
+  async function uploadVideo(form: VideoUploadForm, onProgress: (progress: number) => void) {
+    if (!form.video) {
+      throw new Error('No video file provided.')
+    }
+
     const formData = new FormData()
-    formData.append('video', file)
+    formData.append('video', form.video)
 
     try {
-      const video = await api.post('/videos/upload', formData, {
+      await api.post('/videos/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (event) => {
           if (event.total) {
-            uploadProgress.value = Math.round((event.loaded * 100) / event.total)
+            const progress = Math.round((event.loaded / event.total) * 100)
+            onProgress(progress)
           }
         },
       })
-      await fetchVideos()
-      return video
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Failed to upload video'
-      console.error('Upload error:', e)
-    } finally {
-      uploadProgress.value = 0
+    } catch (error) {
+      console.error('Upload error', error)
+      throw error
     }
   }
 

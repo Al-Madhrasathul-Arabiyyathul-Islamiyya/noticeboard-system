@@ -8,7 +8,7 @@ export interface VideoItem {
 }
 
 export interface VideoUploadForm extends Record<string, unknown> {
-  video: File
+  video: File | null
 }
 
 export interface VideoUpdateForm extends Record<string, unknown> {
