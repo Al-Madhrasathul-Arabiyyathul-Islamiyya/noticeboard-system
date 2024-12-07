@@ -4,6 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL
 
 interface CustomRequestConfig extends AxiosRequestConfig {
   body?: Record<string, unknown> | FormData
+  signal?: AbortSignal
 }
 
 type ApiResponse<T = unknown> = T
@@ -32,7 +33,7 @@ export const api = {
     path: string,
     options: CustomRequestConfig = {},
   ): Promise<ApiResponse<T>> {
-    const { method = 'GET', body, headers = {}, onUploadProgress } = options
+    const { method = 'GET', body, headers = {}, onUploadProgress, signal } = options
 
     try {
       const response: AxiosResponse<ApiResponse<T>> = await instance.request({
@@ -41,18 +42,19 @@ export const api = {
         data: body,
         headers,
         onUploadProgress,
+        signal,
       })
       return response.data
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.data) {
         throw new Error((error.response.data as { message?: string }).message || 'Request failed')
       }
-      throw new Error((error as Error).message || 'Network error')
+      throw error
     }
   },
 
-  get<T = unknown>(path: string): Promise<ApiResponse<T>> {
-    return api.request<T>(path)
+  get<T = unknown>(path: string, signal?: AbortSignal): Promise<ApiResponse<T>> {
+    return api.request<T>(path, { signal })
   },
 
   post<T = unknown>(
