@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { ref, watch } from 'vue'
+import { Dialog, DialogPanel, DialogTitle, TransitionRoot, TransitionChild } from '@headlessui/vue'
+import { formatAsDate } from '@/utils/date'
 import type { ScheduleForm, ScheduleItem } from '@/types'
 
 const form = ref<ScheduleForm>({
@@ -37,7 +38,7 @@ const close = () => {
 const handleSubmit = () => {
   emit('submit', {
     ...form.value,
-    date: new Date(form.value.date),
+    date: formatAsDate(form.value.date),
   })
   resetForm()
 }
