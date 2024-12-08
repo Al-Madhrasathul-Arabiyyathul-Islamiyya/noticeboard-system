@@ -7,10 +7,12 @@ import { Server, Socket } from 'socket.io';
 import type { Video } from '../../video/entities/video.entity';
 import type { Schedule } from '../../schedule/entities/schedule.entity';
 import type { Countdown } from '../../countdown/entities/countdown.entity';
+import { ClientStatus, SystemMetrics } from './types/sockets';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.CORS_ORIGINS?.split(','),
+    credentials: true,
   },
 })
 export class NoticeboardGateway {
@@ -101,6 +103,26 @@ export class NoticeboardGateway {
     return 'poor';
   }
 
+  @SubscribeMessage('systemMetrics')
+  handleSystemMetrics(client: Socket, metrics: SystemMetrics) {
+    const status = this.clients.get(client.id);
+    if (status) {
+      status.system = metrics;
+      this.clients.set(client.id, status);
+      this.broadcastStatus();
+    }
+  }
+
+  @SubscribeMessage('videoUpdate')
+  handleVideoUpdate(client: Socket, video: { filename: string }) {
+    const status = this.clients.get(client.id);
+    if (status) {
+      status.lastVideoPlayed = video.filename;
+      this.clients.set(client.id, status);
+      this.broadcastStatus();
+    }
+  }
+
   trackSync(clientId: string) {
     const status = this.clients.get(clientId);
     if (status) {
@@ -110,6 +132,15 @@ export class NoticeboardGateway {
     }
   }
 
+  getConnectedClientsCount(): number {
+    return Array.from(this.clients.values()).filter((c) => c.connected).length;
+  }
+
+  getClientsStatus(): ClientStatus[] {
+    return Array.from(this.clients.values());
+  }
+
+  // Event emitters
   emitVideoUpdate(videos: Video[]) {
     this.server.emit('videoUpdate', videos);
   }
@@ -120,16 +151,6 @@ export class NoticeboardGateway {
 
   emitCountdownUpdate(countdown: Countdown | null) {
     this.server.emit('countdownUpdate', countdown);
-  }
-
-  @SubscribeMessage('videoUpdate')
-  handleVideoUpdate(client: Socket, video: any) {
-    const status = this.clients.get(client.id);
-    if (status) {
-      status.lastVideoPlayed = video.filename;
-      this.clients.set(client.id, status);
-      this.broadcastStatus();
-    }
   }
 
   private broadcastStatus() {

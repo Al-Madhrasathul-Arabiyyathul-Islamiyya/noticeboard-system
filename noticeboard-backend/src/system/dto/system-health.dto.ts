@@ -30,4 +30,19 @@ export class SystemHealthDto {
 
   @ApiProperty({ description: 'Space used by orphaned files in bytes' })
   orphanedSpace: number;
+
+  @ApiProperty({ description: 'Total storage space in bytes' })
+  totalStorage: number;
+
+  @ApiProperty({ description: 'CPU usage percentage' })
+  cpuUsage: number;
+
+  @ApiProperty({ description: 'Memory usage in bytes' })
+  memoryUsed: number;
+
+  @ApiProperty({ description: 'Total memory in bytes' })
+  totalMemory: number;
+
+  @ApiProperty({ description: 'System load averages' })
+  loadAverage: number;
 }
