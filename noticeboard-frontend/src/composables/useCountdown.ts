@@ -1,9 +1,17 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { useSocket } from './useSocket'
 
 export function useCountdown() {
   const countdown = ref<Countdown | null>(null)
   const loading = ref(false)
   const error = ref<ApiError | null>(null)
+  const { socket, isReady } = useSocket()
+
+  if (socket.value) {
+    socket.value.on('countdownUpdate', (updatedCountdown: Countdown | null) => {
+      countdown.value = updatedCountdown
+    })
+  }
 
   const fetchCountdown = async () => {
     loading.value = true
@@ -17,7 +25,23 @@ export function useCountdown() {
     }
   }
 
+  const updateCountdown = (updatedCountdown: Countdown) => {
+    countdown.value = updatedCountdown
+  }
+
+  watch(isReady, (ready) => {
+    if (ready && socket.value) {
+      socket.value.on('countdownUpdate', updateCountdown)
+    }
+  })
+
   onMounted(fetchCountdown)
+
+  onUnmounted(() => {
+    if (socket.value) {
+      socket.value.off('countdownUpdate')
+    }
+  })
 
   return { countdown, loading, error }
 }

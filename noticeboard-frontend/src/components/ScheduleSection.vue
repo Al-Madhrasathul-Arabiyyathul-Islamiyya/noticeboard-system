@@ -2,7 +2,7 @@
 import { useSchedule } from '@/composables/useSchedule'
 import { computed } from 'vue'
 
-const { schedules, loading } = useSchedule()
+const { schedules } = useSchedule()
 
 const groupedSchedules = computed(() => {
   const groups = new Map<string, Schedule[]>()

@@ -1,8 +1,16 @@
 <script setup lang="ts">
+import { onMounted, watch } from 'vue'
 import TimeDisplay from './components/TimeDisplay.vue'
 import ScheduleSection from './components/ScheduleSection.vue'
 import VideoSection from './components/VideoSection.vue'
 import CountdownSection from './components/CountdownSection.vue'
+import { useSocket } from '@/composables/useSocket'
+
+const { initialize } = useSocket()
+
+onMounted(() => {
+  initialize()
+})
 </script>
 
 <template>
