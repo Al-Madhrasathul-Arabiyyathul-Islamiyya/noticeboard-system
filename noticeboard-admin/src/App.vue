@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import { useSocket } from '@/composables/useSocket'
+
+const { initialize, cleanup } = useSocket()
 
 const isLoading = ref(true)
 const auth = useAuth()
 
 onMounted(async () => {
   await auth.verifyToken()
+  initialize()
   isLoading.value = false
+})
+onUnmounted(() => {
+  cleanup()
 })
 </script>
 

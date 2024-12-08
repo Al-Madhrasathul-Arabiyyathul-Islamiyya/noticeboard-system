@@ -1,40 +1,38 @@
 <script setup lang="ts">
-import { useStatusStore } from '@/stores/status'
+import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { formatDate } from '@/utils/date'
+import { useClientStore } from '@/stores/client.store'
+import ClientStatusCard from '@/components/dashboard/ClientStatusCard.vue'
 
-const statusStore = useStatusStore()
-const { connectedClients } = storeToRefs(statusStore)
+const clientStore = useClientStore()
+const { clients } = storeToRefs(clientStore)
+
+const activeClients = computed(() => clients.value.filter((c) => c.connected).length)
+const totalClients = computed(() => clients.value.length)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <h2 class="text-2xl font-semibold">Connected Displays</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div
-        v-for="client in connectedClients"
-        :key="client.id"
-        class="p-4 rounded-lg bg-white dark:bg-dark-neutral-surface shadow"
-      >
-        <div class="flex items-center justify-between mb-2">
-          <span class="font-medium">Display #{{ client.id }}</span>
-          <span
-            class="px-2 py-1 text-sm rounded-full"
-            :class="
-              client.connected
-                ? 'bg-primary-green/20 text-primary-green'
-                : 'bg-primary-red/20 text-primary-red'
-            "
-          >
-            {{ client.connected ? 'Connected' : 'Disconnected' }}
-          </span>
+  <div class="space-y-8">
+    <h1 class="text-2xl font-semibold">Dashboard</h1>
+
+    <div class="grid gap-8">
+      <section>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Connected Displays</h2>
+          <div class="text-sm">Active: {{ activeClients }}/{{ totalClients }}</div>
         </div>
-        <div class="text-sm space-y-1 text-neutral-text/70">
-          <p>Last Active: {{ formatDate(client.lastPing) }}</p>
-          <p>IP: {{ client.ipAddress }}</p>
-          <p v-if="client.lastVideoPlayed">Currently Playing: {{ client.lastVideoPlayed }}</p>
+
+        <div
+          v-if="clients.length === 0"
+          class="bg-neutral-surface dark:bg-dark-neutral-surface rounded-lg p-8 text-center"
+        >
+          No displays connected
         </div>
-      </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <ClientStatusCard v-for="client in clients" :key="client.id" :client="client" />
+        </div>
+      </section>
     </div>
   </div>
 </template>

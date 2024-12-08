@@ -1,6 +1,7 @@
-import type { ClientStatus } from './status'
+import type { ClientMetrics } from './clients'
 import type { CountdownItem, CountdownForm } from './countdown-item'
 import type { ScheduleItem, ScheduleForm } from './schedule-item'
+import type { SocketConnection } from './socket'
 import type {
   VideoItem,
   VideoUploadForm,
@@ -10,11 +11,12 @@ import type {
 } from './video-item'
 
 export type {
-  ClientStatus,
+  ClientMetrics,
   CountdownItem,
   CountdownForm,
   ScheduleItem,
   ScheduleForm,
+  SocketConnection,
   VideoItem,
   VideoUploadForm,
   VideoUpdateForm,
