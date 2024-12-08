@@ -17,12 +17,10 @@ export function useSocket(): SocketConnection {
     socket.value.on('connect', () => {
       connected.value = true
       isReady.value = true
-      console.log('Socket connected')
     })
 
     socket.value.on('disconnect', () => {
       connected.value = false
-      console.log('Socket disconnected')
     })
 
     socket.value.on('ping', ({ timestamp }: { timestamp: number }) => {

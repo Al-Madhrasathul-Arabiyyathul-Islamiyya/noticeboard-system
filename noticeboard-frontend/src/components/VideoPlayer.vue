@@ -36,8 +36,6 @@ const playVideo = async (videoElement: HTMLVideoElement) => {
 }
 
 const handleVideoEnd = async () => {
-  console.log('[DEBUG] Video ended. Transitioning to the next video.')
-
   const activeVideo = isPrimaryActive.value ? primaryVideo.value : secondaryVideo.value
   const inactiveVideo = isPrimaryActive.value ? secondaryVideo.value : primaryVideo.value
 
@@ -47,14 +45,12 @@ const handleVideoEnd = async () => {
 
   // Update and play the newly active video
   if (inactiveVideo && currentVideo.value) {
-    console.log(`[DEBUG] Playing active video: ${currentVideo.value.path}`)
     updateVideoSource(inactiveVideo, currentVideo.value.path)
     await playVideo(inactiveVideo)
   }
 
   // Preload the next video in the sequence
   if (activeVideo && nextVideo.value) {
-    console.log(`[DEBUG] Preloading next video: ${nextVideo.value.path}`)
     updateVideoSource(activeVideo, nextVideo.value.path)
   }
 }
@@ -76,7 +72,6 @@ const handleTimeUpdate = () => {
 
 const playInitialVideo = async () => {
   if (primaryVideo.value && currentVideo.value) {
-    console.log(`[DEBUG] Initial video: ${currentVideo.value.path}`)
     updateVideoSource(primaryVideo.value, currentVideo.value.path)
     await playVideo(primaryVideo.value)
   }
