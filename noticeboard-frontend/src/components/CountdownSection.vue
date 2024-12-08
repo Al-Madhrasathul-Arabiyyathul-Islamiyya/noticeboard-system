@@ -2,13 +2,15 @@
 import { useCountdown } from '@/composables/useCountdown'
 import { computed } from 'vue'
 
-const { countdown } = useCountdown()
+const { countdown } = defineProps<{
+  countdown: Countdown | null
+}>()
 
 const timeLeft = computed(() => {
-  if (!countdown.value?.targetDate) return { months: 0, days: 0, hours: 0, minutes: 0 }
+  if (!countdown?.targetDate) return { months: 0, days: 0, hours: 0, minutes: 0 }
 
   const now = new Date()
-  const target = new Date(countdown.value.targetDate)
+  const target = new Date(countdown?.targetDate)
   const diff = target.getTime() - now.getTime()
 
   return {

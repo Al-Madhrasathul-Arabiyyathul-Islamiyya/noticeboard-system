@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { useSchedule } from '@/composables/useSchedule'
 import { computed } from 'vue'
 
-const { schedules } = useSchedule()
+const props = defineProps<{
+  schedules: Schedule[]
+}>()
 
 const groupedSchedules = computed(() => {
   const groups = new Map<string, Schedule[]>()
-  schedules.value.forEach((schedule) => {
+  props.schedules.forEach((schedule: Schedule) => {
     if (!groups.has(schedule.type)) {
       groups.set(schedule.type, [])
     }
     groups.get(schedule.type)?.push(schedule)
   })
+
   return groups
 })
 </script>
