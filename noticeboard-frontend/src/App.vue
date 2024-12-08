@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import TimeDisplay from './components/TimeDisplay.vue'
 import ScheduleSection from './components/ScheduleSection.vue'
 import CountdownSection from './components/CountdownSection.vue'
