@@ -4,6 +4,7 @@ interface SocketConnection {
   isReady: Ref<boolean>
   networkQuality: Ref<'good' | 'fair' | 'poor'>
   initialize: () => void
+  cleanup: () => void
 }
 
 interface ClientStatus {

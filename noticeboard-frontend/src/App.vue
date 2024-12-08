@@ -8,12 +8,15 @@ import { useSchedule } from './composables/useSchedule'
 import { useCountdown } from './composables/useCountdown'
 import { useSocket } from './composables/useSocket'
 
-const { initialize } = useSocket()
+const { initialize, cleanup } = useSocket()
 const { countdown } = useCountdown()
 const { schedules } = useSchedule()
 
 onMounted(() => {
   initialize()
+})
+onUnmounted(() => {
+  cleanup()
 })
 </script>
 

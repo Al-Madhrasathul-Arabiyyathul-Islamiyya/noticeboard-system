@@ -12,6 +12,10 @@ export function useSocket(): SocketConnection {
 
     socket.value = io(import.meta.env.VITE_API_URL, {
       transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     })
 
     socket.value.on('connect', () => {
@@ -23,9 +27,22 @@ export function useSocket(): SocketConnection {
       connected.value = false
     })
 
+    socket.value.on('connect_error', (error) => {
+      console.error('Socket connection error:', error)
+      isReady.value = false
+    })
+
     socket.value.on('ping', ({ timestamp }: { timestamp: number }) => {
       socket.value?.emit('pong', { timestamp })
     })
+  }
+
+  const cleanup = () => {
+    if (socket.value) {
+      socket.value.disconnect()
+      socket.value = null
+      isReady.value = false
+    }
   }
 
   return {
@@ -34,5 +51,6 @@ export function useSocket(): SocketConnection {
     connected,
     networkQuality,
     initialize,
+    cleanup,
   }
 }
