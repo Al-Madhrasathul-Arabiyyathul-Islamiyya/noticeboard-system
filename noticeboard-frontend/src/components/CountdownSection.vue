@@ -29,7 +29,7 @@ const timeUnits = computed(() => [
 
 <template>
   <div v-if="countdown?.name" class="countdown-container">
-    <span class="name font-sans">{{ countdown.name }}:</span>
+    <span class="name">{{ countdown.name }}:</span>
     <div class="timer">
       <div v-for="unit in timeUnits" :key="unit.label" class="time-block">
         <div class="value">{{ unit.value }}</div>
@@ -44,7 +44,7 @@ const timeUnits = computed(() => [
   @apply py-6 px-8 bg-white/5 flex items-center gap-8;
 }
 .name {
-  @apply text-3xl font-medium;
+  @apply text-3xl font-semibold uppercase font-sans;
 }
 .timer {
   @apply flex gap-6;
