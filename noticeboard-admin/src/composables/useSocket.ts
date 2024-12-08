@@ -11,12 +11,15 @@ export function useSocket(): SocketConnection {
   const initialize = () => {
     if (socket.value) return
 
+    const clientName = 'display-admin'
+
     socket.value = io(import.meta.env.VITE_API_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
+      query: { clientName },
     })
 
     socket.value.on('connect', () => {
