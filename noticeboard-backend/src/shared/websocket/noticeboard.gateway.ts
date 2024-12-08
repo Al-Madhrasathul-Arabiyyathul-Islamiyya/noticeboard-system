@@ -8,6 +8,7 @@ import type { Video } from '../../video/entities/video.entity';
 import type { Schedule } from '../../schedule/entities/schedule.entity';
 import type { Countdown } from '../../countdown/entities/countdown.entity';
 import { ClientStatus, SystemMetrics } from './types/sockets';
+import { ClientMap, loadClientMap } from 'src/utils/clientMap';
 
 @WebSocketGateway({
   cors: {
@@ -18,19 +19,28 @@ import { ClientStatus, SystemMetrics } from './types/sockets';
 export class NoticeboardGateway {
   private clients: Map<string, ClientStatus> = new Map();
   private pingIntervals: Map<string, NodeJS.Timeout> = new Map();
+  private clientMap: ClientMap[] = loadClientMap();
 
   @WebSocketServer()
   server: Server;
 
   handleConnection(client: Socket) {
-    const clientId = client.id;
+    const ip = client.handshake.address; // Get client IP
+    const mappedClient = this.clientMap.find((entry) => entry.ip === ip);
+
+    const clientName =
+      (client.handshake.query.clientName as string) ||
+      mappedClient?.name ||
+      `unknown-client-${client.id}`; // Default if no match
+    const clientId = clientName; // Use the name as the unique identifier
+
     const status: ClientStatus = {
       id: clientId,
       lastPing: new Date(),
-      ipAddress: client.handshake.address,
+      ipAddress: ip,
       connected: true,
       network: {
-        clientId,
+        clientId: clientId,
         latency: 0,
         lastPing: new Date(),
         lastPong: new Date(),
@@ -42,17 +52,27 @@ export class NoticeboardGateway {
     this.clients.set(clientId, status);
     this.startPingInterval(client);
     this.broadcastStatus();
+
+    console.log(`Client connected: ${clientName} (IP: ${ip})`);
   }
 
   handleDisconnect(client: Socket) {
-    this.clearPingInterval(client.id);
-    const status = this.clients.get(client.id);
+    const ip = client.handshake.address;
+    const mappedClient = this.clientMap.find((entry) => entry.ip === ip);
+
+    const clientName =
+      client.handshake.query.clientName[0] ||
+      mappedClient?.name ||
+      `unknown-client-${client.id}`;
+
+    const status = this.clients.get(clientName);
     if (status) {
       status.connected = false;
-      status.lastPing = new Date();
-      this.clients.set(client.id, status);
+      this.clients.set(clientName, status);
       this.broadcastStatus();
     }
+
+    console.log(`Client disconnected: ${clientName} (IP: ${ip})`);
   }
 
   private startPingInterval(client: Socket) {
