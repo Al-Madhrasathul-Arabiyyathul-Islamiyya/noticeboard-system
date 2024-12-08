@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useCountdown } from '@/composables/useCountdown'
 import { computed } from 'vue'
 
 const { countdown } = defineProps<{

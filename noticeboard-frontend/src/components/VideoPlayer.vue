@@ -96,14 +96,15 @@ watch(
 </script>
 
 <template>
-  <div class="relative w-full h-full overflow-hidden rounded-3xl">
+  <div class="relative min-w-full w-full h-auto overflow-hidden rounded-3xl">
     <video
       ref="primaryVideo"
-      lass="absolute inset-0 w-full h-full object-contain bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
+      lass="absolute inset-0 min-w-full w-full h-auto object-cover bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
       :class="{ 'opacity-100': isPrimaryActive, 'opacity-0': !isPrimaryActive }"
       @timeupdate="handleTimeUpdate"
       @ended="handleVideoEnd"
       muted
+      width="100%"
       playsinline
       preload="auto"
     >
@@ -111,11 +112,12 @@ watch(
     </video>
     <video
       ref="secondaryVideo"
-      class="absolute inset-0 w-full h-full object-contain bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
+      class="absolute inset-0 min-w-full w-full h-auto object-cover bg-black rounded-3xl transition-opacity duration-1000 shadow-[0_0_30px_15px_rgba(0,0,0,0.2)]"
       :class="{ 'opacity-100': !isPrimaryActive, 'opacity-0': isPrimaryActive }"
       @timeupdate="handleTimeUpdate"
       @ended="handleVideoEnd"
       muted
+      width="100%"
       playsinline
       preload="auto"
     >

@@ -18,40 +18,51 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-school-green text-school-text main-container overflow-clip">
-    <!-- Header Section -->
-    <header class="shadow py-4 px-8">
+  <div
+    class="h-screen bg-school-green text-school-text bg-[url('@/assets/background.png')] bg-center bg-cover bg-no-repeat flex flex-col overflow-hidden"
+  >
+    <!-- Header: h-[136px] -->
+    <header class="p-8 pb-0 shrink-0">
       <div class="flex justify-between items-center">
-        <img src="@/assets/logo.png" alt="Logo" class="h-12" />
+        <img src="@/assets/logo.png" alt="Logo" class="h-24" />
         <TimeDisplay />
       </div>
     </header>
 
-    <!-- Main Section -->
-    <main class="flex-grow h-[calc(100vh-64px)] flex justify-center items-center overflow-clip">
-      <!-- Conditional Rendering -->
-      <div v-if="schedules.length > 0 || countdown">
-        <div class="grid grid-cols-12 gap-8 w-full max-w-screen-xl h-full">
-          <div v-if="schedules.length > 0" class="col-span-4 bg-white/10 rounded-3xl p-6">
-            <ScheduleSection :schedules="schedules" />
-          </div>
-          <div class="col-span-8">
-            <VideoSection />
-          </div>
-          <div v-if="countdown" class="col-span-12 mt-4">
-            <CountdownSection :countdown="countdown" />
-          </div>
+    <!-- Main Content -->
+    <main class="flex-1 p-6 flex flex-col gap-8 min-h-0">
+      <!-- Grid Container -->
+      <div
+        class="flex-1 grid gap-8 min-h-0"
+        :class="{
+          'grid-cols-12': schedules.length > 0,
+          'place-items-center': !schedules.length,
+        }"
+      >
+        <!-- Schedule -->
+        <div
+          v-if="schedules.length > 0"
+          class="col-span-4 bg-white/10 rounded-3xl p-8 overflow-auto"
+        >
+          <ScheduleSection :schedules="schedules" />
+        </div>
+
+        <!-- Video -->
+        <div
+          :class="{
+            'col-span-8 h-full': schedules.length > 0,
+            'w-[calc(16*(100vh-136px-32px-32px)/9)]': !schedules.length && !countdown,
+            'w-[calc(16*(100vh-136px-32px-32px-72px-32px)/9)]': !schedules.length && countdown,
+          }"
+        >
+          <VideoSection />
         </div>
       </div>
-      <div v-else class="h-screen w-full flex items-center justify-center">
-        <VideoSection />
+
+      <!-- Countdown -->
+      <div v-if="countdown" class="shrink-0">
+        <CountdownSection :countdown="countdown" class="bg-white/5 text-3xl font-mono" />
       </div>
     </main>
   </div>
 </template>
-
-<style lang="css" scoped>
-.main-container {
-  background: center / cover no-repeat url('@/assets/background.png');
-}
-</style>

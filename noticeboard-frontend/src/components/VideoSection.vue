@@ -5,8 +5,9 @@ const { videos, loading } = useVideos()
 </script>
 
 <template>
-  <div class="flex items-center justify-center h-full">
-    <div class="bg-black rounded-3xl aspect-video w-full">
+  <div class="relative w-full h-0 pb-[56.25%]">
+    <!-- 16:9 aspect ratio -->
+    <div class="absolute inset-0">
       <VideoPlayer v-if="videos.length > 0" />
       <div v-else class="flex items-center justify-center h-full text-2xl text-white/50">
         No videos available
