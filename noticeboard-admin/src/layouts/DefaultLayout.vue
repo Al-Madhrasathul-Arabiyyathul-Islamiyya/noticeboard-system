@@ -11,13 +11,13 @@ const link = { name: 'Home', path: '/' }
     class="min-h-screen bg-neutral-bg dark:bg-dark-neutral-bg text-neutral-text dark:text-dark-neutral-text"
   >
     <nav class="bg-primary-green dark:bg-dark-primary-green text-white shadow-lg">
-      <div class="max-w-7xl mx-auto px-4">
+      <div class="w-full mx-auto px-4">
         <div class="flex justify-between h-20">
           <div class="flex items-center gap-4">
             <RouterLink :to="link.path">
               <img src="@/assets/logo.png" alt="Logo" class="h-12" />
             </RouterLink>
-            <h1 class="text-2xl font-medium">Noticeboard Admin</h1>
+            <h1 class="text-2xl ml-10 uppercase font-extrabold">Noticeboard Admin</h1>
           </div>
           <ThemeToggle />
         </div>

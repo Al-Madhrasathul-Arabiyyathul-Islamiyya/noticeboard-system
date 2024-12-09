@@ -39,6 +39,7 @@ export function useSocket(): SocketConnection {
     })
 
     socket.value.on('ping', ({ timestamp }: { timestamp: number }) => {
+      console.log('Recieved ping')
       socket.value?.emit('pong', { timestamp })
     })
   }

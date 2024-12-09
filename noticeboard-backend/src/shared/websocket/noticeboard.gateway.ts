@@ -76,26 +76,31 @@ export class NoticeboardGateway {
   }
 
   private startPingInterval(client: Socket) {
+    this.clearPingInterval(client.id);
+
+    const mappedClientId = this.getMappedClientId(client);
     const interval = setInterval(() => {
       const startTime = Date.now();
-      client.emit('ping', { timestamp: startTime });
+      client.removeAllListeners('pong');
 
       client.once('pong', () => {
         const latency = Date.now() - startTime;
-        this.updateNetworkStatus(client.id, latency);
+        this.updateNetworkStatus(mappedClientId, latency);
       });
 
+      client.emit('ping', { timestamp: startTime });
+
       setTimeout(() => {
-        const status = this.clients.get(client.id);
+        const status = this.clients.get(mappedClientId);
         if (status && Date.now() - status.network.lastPong.getTime() > 5000) {
           status.network.connectionQuality = 'poor';
-          this.clients.set(client.id, status);
+          this.clients.set(mappedClientId, status);
           this.broadcastStatus();
         }
       }, 5000);
     }, 30000);
 
-    this.pingIntervals.set(client.id, interval);
+    this.pingIntervals.set(mappedClientId, interval);
   }
 
   private clearPingInterval(clientId: string) {
@@ -111,6 +116,7 @@ export class NoticeboardGateway {
     if (status) {
       status.network.latency = latency;
       status.network.lastPong = new Date();
+      status.lastPing = new Date();
       status.network.connectionQuality = this.getConnectionQuality(latency);
       this.clients.set(clientId, status);
       this.broadcastStatus();
@@ -121,6 +127,16 @@ export class NoticeboardGateway {
     if (latency < 100) return 'good';
     if (latency < 300) return 'fair';
     return 'poor';
+  }
+
+  private getMappedClientId(client: Socket): string {
+    const ip = normalizeIP(client.handshake.address);
+    const mappedClient = this.clientMap.find((entry) => entry.ip === ip);
+    return (
+      (client.handshake.query.clientName as string) ||
+      mappedClient?.name ||
+      `unknown-client-${client.id}`
+    );
   }
 
   @SubscribeMessage('systemMetrics')
