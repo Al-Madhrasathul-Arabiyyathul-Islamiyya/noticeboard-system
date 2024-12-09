@@ -1,3 +1,5 @@
 *.db
 uploads/*
 further-additions.md
+noticeboard
+noticeboard-api.service

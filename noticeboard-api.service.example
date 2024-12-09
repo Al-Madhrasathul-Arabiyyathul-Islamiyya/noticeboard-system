@@ -1,0 +1,14 @@
+[Unit]
+Description=Noticeboard API
+After=network.target
+
+[Service]
+WorkingDirectory=BASE_DIR/backend
+ExecStart=NODE_PATH dist/main.js
+Restart=always
+User=USER
+Group=USER
+Environment=NODE_ENV=production PORT=3000
+
+[Install]
+WantedBy=multi-user.target
