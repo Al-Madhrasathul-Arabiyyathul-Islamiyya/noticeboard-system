@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useClientStore } from '@/stores/client.store'
 import ClientStatusCard from '@/components/dashboard/ClientStatusCard.vue'
+import SystemHealth from '@/components/dashboard/SystemHealth.vue'
+import { useSystemStore } from '@/stores/system.store'
 
 const clientStore = useClientStore()
+const systemStore = useSystemStore()
 const { clients } = storeToRefs(clientStore)
+const { stats: systemStats } = storeToRefs(systemStore)
 
 const activeClients = computed(() => clients.value.filter((c) => c.connected).length)
 const totalClients = computed(() => clients.value.length)
+
+onMounted(() => {
+  systemStore.fetchStats()
+})
 </script>
 
 <template>
@@ -16,6 +24,9 @@ const totalClients = computed(() => clients.value.length)
     <h1 class="text-2xl font-semibold">Dashboard</h1>
 
     <div class="grid gap-8">
+      <section>
+        <SystemHealth v-if="systemStats" :stats="systemStats" />
+      </section>
       <section>
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold">Connected Displays</h2>
