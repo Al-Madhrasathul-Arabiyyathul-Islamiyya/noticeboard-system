@@ -3,10 +3,24 @@ import { CircleStackIcon, VideoCameraIcon, ClockIcon, TrashIcon } from '@heroico
 import SystemStatsCard from './SystemStatsCard.vue'
 import type { SystemHealth } from '@/types'
 import { formatBytes, formatUptime } from '@/utils/format'
+import { computed } from 'vue'
 
-defineProps<{
+const { stats } = defineProps<{
   stats: SystemHealth
 }>()
+
+const usagePercentage = computed(() => (stats.storageUsed / stats.totalStorage) * 100)
+
+const storageUsed = computed(() => {
+  const percentage = usagePercentage.value
+  const color =
+    percentage > 90
+      ? 'text-primary-red'
+      : percentage > 70
+        ? 'text-yellow-500'
+        : 'text-primary-green'
+  return { color, percentage }
+})
 </script>
 
 <template>
@@ -16,9 +30,10 @@ defineProps<{
       <SystemStatsCard
         :icon="CircleStackIcon"
         title="Storage"
-        :value="`${formatBytes(stats.storageUsed)} / ${formatBytes(stats.storageAvailable)}`"
-        :subtitle="`${((stats.storageUsed / stats.storageAvailable) * 100).toFixed(1)}% used`"
-      />
+        :value="`${formatBytes(stats.storageUsed)} / ${formatBytes(stats.totalStorage)}`"
+      >
+        <span :class="storageUsed.color">{{ storageUsed.percentage.toFixed(1) }}%</span>
+      </SystemStatsCard>
 
       <SystemStatsCard
         :icon="VideoCameraIcon"

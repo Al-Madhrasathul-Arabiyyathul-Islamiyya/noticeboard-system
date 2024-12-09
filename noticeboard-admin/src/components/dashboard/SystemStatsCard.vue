@@ -15,7 +15,8 @@ defineProps<{
     </div>
     <div class="mt-2">
       <div class="text-2xl font-semibold">{{ value }}</div>
-      <div class="text-sm text-neutral-text/70">{{ subtitle }}</div>
+      <slot />
+      <div class="text-sm text-neutral-text/70 dark:text-dark-neutral-text/70">{{ subtitle }}</div>
     </div>
   </div>
 </template>
