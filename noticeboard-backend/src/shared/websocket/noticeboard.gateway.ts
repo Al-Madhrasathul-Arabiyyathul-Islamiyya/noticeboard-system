@@ -79,12 +79,19 @@ export class NoticeboardGateway {
     this.clearPingInterval(client.id);
 
     const mappedClientId = this.getMappedClientId(client);
+
     const interval = setInterval(() => {
       const startTime = Date.now();
-      client.removeAllListeners('pong');
+      console.log(
+        `Ping sent to ${mappedClientId} at ${new Date(startTime).toISOString()}`,
+      );
 
+      client.removeAllListeners('pong');
       client.once('pong', () => {
         const latency = Date.now() - startTime;
+        console.log(
+          `Pong received from ${mappedClientId} at ${new Date().toISOString()} with latency: ${latency}ms`,
+        );
         this.updateNetworkStatus(mappedClientId, latency);
       });
 
@@ -92,10 +99,24 @@ export class NoticeboardGateway {
 
       setTimeout(() => {
         const status = this.clients.get(mappedClientId);
-        if (status && Date.now() - status.network.lastPong.getTime() > 5000) {
-          status.network.connectionQuality = 'poor';
-          this.clients.set(mappedClientId, status);
-          this.broadcastStatus();
+        if (status) {
+          const timeSinceLastPong =
+            Date.now() - status.network.lastPong.getTime();
+          console.log(
+            `Checking connection quality for ${mappedClientId} at ${new Date().toISOString()}`,
+          );
+          console.log(
+            `Time since last pong for ${mappedClientId}: ${timeSinceLastPong}ms (lastPong=${status.network.lastPong.toISOString()})`,
+          );
+
+          if (timeSinceLastPong > 5500) {
+            console.warn(
+              `Marking connection poor for ${mappedClientId}: lastPong=${status.network.lastPong.toISOString()}`,
+            );
+            status.network.connectionQuality = 'poor';
+            this.clients.set(mappedClientId, status);
+            this.broadcastStatus();
+          }
         }
       }, 5000);
     }, 30000);
