@@ -1,7 +1,7 @@
 export interface ScheduleItem {
   id: number
   type: 'academic' | 'administration'
-  date: Date
+  date: Date | string
   time: string
   item: string
 }
