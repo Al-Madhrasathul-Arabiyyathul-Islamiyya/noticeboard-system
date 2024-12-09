@@ -2,15 +2,7 @@
   "clients": [
     {
       "name": "display-main",
-      "ip": "::1"
-    },
-    {
-      "name": "display-2",
       "ip": "127.0.0.1"
-    },
-    {
-      "name": "display-3",
-      "ip": "172.16.5.102"
     }
   ]
 }

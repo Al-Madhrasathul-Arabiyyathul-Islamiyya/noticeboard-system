@@ -17,7 +17,7 @@ const statusClasses = computed(() => ({
   <div class="bg-white dark:bg-dark-neutral-surface rounded-lg shadow-lg p-6">
     <div class="flex justify-between items-start">
       <div>
-        <h3 class="font-medium">Client #{{ client.id.slice(0, 8) }}</h3>
+        <h3 class="font-medium">Client #{{ client.id.slice(0, 15) }}</h3>
         <p class="text-sm text-neutral-text/70 dark:text-dark-neutral-text/70">
           {{ client.ipAddress }}
         </p>

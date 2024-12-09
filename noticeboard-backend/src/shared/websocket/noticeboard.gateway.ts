@@ -8,7 +8,7 @@ import type { Video } from '../../video/entities/video.entity';
 import type { Schedule } from '../../schedule/entities/schedule.entity';
 import type { Countdown } from '../../countdown/entities/countdown.entity';
 import { ClientStatus, SystemMetrics } from './types/sockets';
-import { ClientMap, loadClientMap } from 'src/utils/clientMap';
+import { ClientMap, loadClientMap, normalizeIP } from 'src/utils/clientMap';
 
 @WebSocketGateway({
   cors: {
@@ -25,14 +25,14 @@ export class NoticeboardGateway {
   server: Server;
 
   handleConnection(client: Socket) {
-    const ip = client.handshake.address; // Get client IP
+    const ip = normalizeIP(client.handshake.address);
     const mappedClient = this.clientMap.find((entry) => entry.ip === ip);
 
     const clientName =
       (client.handshake.query.clientName as string) ||
       mappedClient?.name ||
-      `unknown-client-${client.id}`; // Default if no match
-    const clientId = clientName; // Use the name as the unique identifier
+      `unknown-client-${client.id}`;
+    const clientId = clientName;
 
     const status: ClientStatus = {
       id: clientId,
@@ -57,11 +57,11 @@ export class NoticeboardGateway {
   }
 
   handleDisconnect(client: Socket) {
-    const ip = client.handshake.address;
+    const ip = normalizeIP(client.handshake.address);
     const mappedClient = this.clientMap.find((entry) => entry.ip === ip);
 
     const clientName =
-      client.handshake.query.clientName[0] ||
+      (client.handshake.query?.clientName as string) ||
       mappedClient?.name ||
       `unknown-client-${client.id}`;
 
