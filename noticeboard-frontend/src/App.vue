@@ -57,6 +57,7 @@ onUnmounted(() => {
             'w-[calc(16*(100vh-136px-32px-32px)/9)]': !schedules.length && !countdown,
             'w-[calc(16*(100vh-136px-32px-32px-72px-32px)/9)]': !schedules.length && countdown,
           }"
+          class="flex flex-col justify-center"
         >
           <VideoSection />
         </div>
