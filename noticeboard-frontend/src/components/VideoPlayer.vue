@@ -30,7 +30,7 @@ const updateVideoSource = async (videoElement: HTMLVideoElement, videoPath: stri
   }
 }
 
-function stripUploadsPrefix(videoPath) {
+function stripUploadsPrefix(videoPath: string) {
   const prefix = 'uploads/';
   return videoPath.startsWith(prefix) ? videoPath.slice(prefix.length) : videoPath;
 }
