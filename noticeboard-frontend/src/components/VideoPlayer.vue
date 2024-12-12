@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useVideos } from '@/composables/useVideos'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 const primaryVideo = ref<HTMLVideoElement | null>(null)
 const secondaryVideo = ref<HTMLVideoElement | null>(null)
 const currentIndex = ref(0)
@@ -17,8 +19,8 @@ const nextVideo = computed(() => videos.value[nextIndex.value])
 const updateVideoSource = async (videoElement: HTMLVideoElement, videoPath: string) => {
   if (videoElement) {
     const sourceElement = videoElement.querySelector('source')
-    if (sourceElement && sourceElement.src !== `/api/videos/stream/${videoPath}`) {
-      sourceElement.src = `/api/videos/stream/${videoPath}`
+    if (sourceElement && sourceElement.src !== `${API_URL}/videos/stream/${videoPath}`) {
+      sourceElement.src = `${API_URL}/videos/stream/${videoPath}`
       videoElement.load()
       // Wait for loadeddata event
       await new Promise((resolve) => {
