@@ -30,9 +30,14 @@ const updateVideoSource = async (videoElement: HTMLVideoElement, videoPath: stri
   }
 }
 
+function stripUploadsPrefix(videoPath) {
+  const prefix = 'uploads/';
+  return videoPath.startsWith(prefix) ? videoPath.slice(prefix.length) : videoPath;
+}
+
 const playVideo = async (videoElement: HTMLVideoElement) => {
   if (videoElement?.paused) {
-    await updateVideoSource(videoElement, currentVideo.value.path)
+    await updateVideoSource(videoElement, stripUploadsPrefix(currentVideo.value.path));
     await videoElement.play()
   }
 }
