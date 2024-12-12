@@ -1,6 +1,8 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useSocket } from './useSocket'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export function useCountdown() {
   const countdown = ref<Countdown | null>(null)
   const loading = ref(false)
@@ -16,7 +18,7 @@ export function useCountdown() {
   const fetchCountdown = async () => {
     loading.value = true
     try {
-      const res = await fetch('/api/countdown/active')
+      const res = await fetch(`${API_URL}/api/countdown/active`)
       countdown.value = await res.json()
     } catch (e) {
       error.value = e as ApiError

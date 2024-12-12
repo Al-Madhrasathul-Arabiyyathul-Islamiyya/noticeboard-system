@@ -1,6 +1,8 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useSocket } from './useSocket'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export function useVideos() {
   const videos = ref<Video[]>([])
   const loading = ref(false)
@@ -10,7 +12,7 @@ export function useVideos() {
   const fetchVideos = async () => {
     loading.value = true
     try {
-      const res = await fetch('/api/videos')
+      const res = await fetch(`${API_URL}/api/videos`)
       videos.value = await res.json()
     } catch (e) {
       error.value = e as ApiError

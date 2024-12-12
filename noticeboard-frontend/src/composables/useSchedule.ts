@@ -1,6 +1,8 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useSocket } from './useSocket'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export function useSchedule() {
   const schedules = ref<Schedule[]>([])
   const loading = ref(false)
@@ -16,7 +18,7 @@ export function useSchedule() {
   const fetchSchedule = async () => {
     loading.value = true
     try {
-      const res = await fetch('/api/schedule/today')
+      const res = await fetch(`${API_URL}/api/schedule/today`)
       schedules.value = await res.json()
     } catch (e) {
       error.value = e as ApiError
