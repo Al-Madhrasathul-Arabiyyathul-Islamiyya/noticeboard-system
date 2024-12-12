@@ -18,7 +18,7 @@ export function useCountdown() {
   const fetchCountdown = async () => {
     loading.value = true
     try {
-      const res = await fetch(`${API_URL}/api/countdown/active`)
+      const res = await fetch(`${API_URL}/countdown/active`)
       countdown.value = await res.json()
     } catch (e) {
       error.value = e as ApiError

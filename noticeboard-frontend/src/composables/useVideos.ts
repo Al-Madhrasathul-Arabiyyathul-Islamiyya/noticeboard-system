@@ -12,7 +12,7 @@ export function useVideos() {
   const fetchVideos = async () => {
     loading.value = true
     try {
-      const res = await fetch(`${API_URL}/api/videos`)
+      const res = await fetch(`${API_URL}/videos`)
       videos.value = await res.json()
     } catch (e) {
       error.value = e as ApiError

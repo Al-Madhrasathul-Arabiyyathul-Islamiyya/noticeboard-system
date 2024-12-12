@@ -18,7 +18,7 @@ export function useSchedule() {
   const fetchSchedule = async () => {
     loading.value = true
     try {
-      const res = await fetch(`${API_URL}/api/schedule/today`)
+      const res = await fetch(`${API_URL}/schedule/today`)
       schedules.value = await res.json()
     } catch (e) {
       error.value = e as ApiError
